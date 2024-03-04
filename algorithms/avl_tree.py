@@ -9,92 +9,99 @@ class Node:
         return f'{self.data}'
 
 
-class AVL:
+class avl_tree:
     def __init__(self) -> None:
-        pass
+        self.root = None
 
-    def _node_height(self, root) -> int:
+    def _node_height(self, node) -> int:
         left_height, right_height = 0, 0
 
-        if root is not None and root.left is not None:
-            left_height = root.left.height
+        if node is not None and node.left is not None:
+            left_height = node.left.height
 
-        if root is not None and root.right is not None:
-            right_height = root.right.height
+        if node is not None and node.right is not None:
+            right_height = node.right.height
 
         return left_height + 1 if left_height > right_height else right_height + 1
 
-    def balance_factor(self, root) -> int:
+    def _balance_factor(self, node) -> int:
         left_height, right_height = 0, 0
-        if root is not None and root.left is not None:
-            left_height = root.left.height
+        if node is not None and node.left is not None:
+            left_height = node.left.height
 
-        if root is not None and root.right is not None:
-            right_height = root.right.height
+        if node is not None and node.right is not None:
+            right_height = node.right.height
 
         return left_height - right_height
 
-    def ll_rotation(self, root) -> Node:
-        root_left_child = root.left
-        root_left_child_right = root_left_child.right
-        root_left_child.right = root
-        root.left = root_left_child_right
+    def _ll_rotation(self, node) -> Node:
+        node_left_child = node.left
+        node_left_child_right = node_left_child.right
+        node_left_child.right = node
+        node.left = node_left_child_right
 
-        root.height = self._node_height(root)
-        root_left_child.height = self._node_height(root_left_child)
+        node.height = self._node_height(node)
+        node_left_child.height = self._node_height(node_left_child)
 
-        return root_left_child
+        return node_left_child
 
-    def lr_rotation(self, root) -> Node:
-        root_left_child = root.left
-        root_left_child_right = root_left_child.right
-        root_left_child_right_left_child = root_left_child_right.left
-        root_left_child_right_right_child = root_left_child_right.right
+    def _lr_rotation(self, node) -> Node:
+        node_left_child = node.left
+        node_left_child_right = node_left_child.right
+        node_left_child_right_left_child = node_left_child_right.left
+        node_left_child_right_right_child = node_left_child_right.right
 
-        # assign root's left child to point to root's 'child's -> left child
-        root_left_child.right = root_left_child_right_left_child
+        # assign node's left child to point to node's 'child's -> left child
+        node_left_child.right = node_left_child_right_left_child
 
-        # make `root_left_child_right` new root by
-        # step 1: assign root's left child's right child -> left to point to original root's left child
-        root_left_child_right.left = root_left_child
+        # make `node_left_child_right` new node by
+        # step 1: assign node's left child's right child -> left to point to original node's left child
+        node_left_child_right.left = node_left_child
 
-        # step 2: assign root's left child's right child -> right to point to original root
-        root_left_child_right.right = root
+        # step 2: assign node's left child's right child -> right to point to original node
+        node_left_child_right.right = node
 
-        # assign root_left_child's right childs' right child to original root's left child
-        root.left = root_left_child_right_right_child
+        # assign node_left_child's right childs' right child to original node's left child
+        node.left = node_left_child_right_right_child
 
-        # calculate new heights for original root and new root as well as original root's left child
-        root_left_child.height = self._node_height(root_left_child)
-        root.height = self._node_height(root)
-        root_left_child_right.height = self._node_height(root_left_child_right)
+        # calculate new heights for original node and new node as well as original node's left child
+        node_left_child.height = self._node_height(node_left_child)
+        node.height = self._node_height(node)
+        node_left_child_right.height = self._node_height(node_left_child_right)
 
-        # finally, return newly assigned root i.e. root's left child's right child
-        return root_left_child_right
+        # finally, return newly assigned node i.e. node's left child's right child
+        return node_left_child_right
 
-    def insert(self, root, data) -> Node:
+    def insert(self, data) -> Node:
+        self.root = self._insert(self.root, data)
 
-        # root getting initialized for the 1st time or root with same value with different name
-        if root is None:
+    def _insert(self, node, data) -> Node:
+
+        # node getting initialized for the 1st time or node with same value with different name
+        if node is None:
             node = Node(data, 1)
-            root = node
 
-        if data < root.data:
-            root.left = self.insert(root.left, data)
-        elif data > root.data:
-            root.right = self.insert(root.right, data)
+        if data < node.data:
+            node.left = self._insert(node.left, data)
+        elif data > node.data:
+            node.right = self._insert(node.right, data)
 
         # update height before returning
-        root.height = self._node_height(root)
+        node.height = self._node_height(node)
 
-        if self.balance_factor(root) == 2 and self.balance_factor(root.left) == 1:
-            return self.ll_rotation(root)
-        elif self.balance_factor(root) == 2 and self.balance_factor(root.left) == -1:
-            return self.lr_rotation(root)
+        if self._balance_factor(node) == 2 and self._balance_factor(node.left) == 1:
+            return self._ll_rotation(node)
+        elif self._balance_factor(node) == 2 and self._balance_factor(node.left) == -1:
+            return self._lr_rotation(node)
 
-        return root
+        return node
 
-    def inorder_traversal(self, root, result=None):
+    def display(self) -> list:
+        result = self._inorder_traversal(self.root)
+        print(', '.join(str(node) for node in result))
+        return result
+
+    def _inorder_traversal(self, root, result=None):
 
         if result is None:
             result = []
@@ -102,30 +109,30 @@ class AVL:
         if root is None:
             return result
 
-        self.inorder_traversal(root.left, result)
+        self._inorder_traversal(root.left, result)
         result.append(root)
-        self.inorder_traversal(root.right, result)
+        self._inorder_traversal(root.right, result)
 
         return result
 
 
-AVL = AVL()
+avl = avl_tree()
 
-root = None
-root = AVL.insert(root, 10)
-root = AVL.insert(root, 5)
-root = AVL.insert(root, 2)
+avl.insert(10)
+avl.insert(5)
+avl.insert(2)
 # AVL.insert(root, 30, 'D')
 
-print(', '.join(str(node) for node in AVL.inorder_traversal(root)))
+print(', '.join(str(node) for node in avl.display()))
 
-root = None
-root = AVL.insert(root, 10)
-root = AVL.insert(root, 5)
+
+avl = avl_tree()
+avl.insert(10)
+avl.insert(5)
 # root = AVL.insert(root, 2)
-root = AVL.insert(root, 8)
-root = AVL.insert(root, 7)
-root = AVL.insert(root, 9)
+avl.insert(8)
+avl.insert(7)
+avl.insert(9)
 # root = AVL.insert(root, 6)
 
-print(', '.join(str(node) for node in AVL.inorder_traversal(root)))
+print(', '.join(str(node) for node in avl.display()))
