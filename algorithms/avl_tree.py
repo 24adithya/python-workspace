@@ -64,7 +64,8 @@ class AVL:
         # assign root_left_child's right childs' right child to original root's left child
         root.left = root_left_child_right_right_child
 
-        # calculate new heights for original root and new root
+        # calculate new heights for original root and new root as well as original root's left child
+        root_left_child.height = self._node_height(root_left_child)
         root.height = self._node_height(root)
         root_left_child_right.height = self._node_height(root_left_child_right)
 
