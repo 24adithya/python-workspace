@@ -1,31 +1,52 @@
 class Node:
-    def __init__(self, data, name) -> None:
+    def __init__(self, data, height=1) -> None:
         self.data = data
-        self.name = name
         self.right = None
         self.left = None
+        self.height = height
 
     def __str__(self) -> str:
-        return f'({self.name}, {self.data})'
+        return f'({self.data})'
 
 
 class binary_search_tree:
     def __init__(self) -> None:
-        pass
+        self.root = None
 
-    def insert(self, root, data, name) -> Node:
-        node = Node(data, name)
+    def insert(self, data) -> Node:
+        self.root = self._insert(self.root, data)
 
-        # root getting initialized for the 1st time or root with same value with different name
-        if root is None or root.data == data:
-            root = node
+    def _insert(self, node, data) -> Node:
 
-        if data < root.data:
-            root.left = self.insert(root.left, data, name)
-        elif data > root.data:
-            root.right = self.insert(root.right, data, name)
+        # node getting initialized for the 1st time or node with same value with different name
+        if node is None:
+            node = Node(data, 1)
 
-        return root
+        if data < node.data:
+            node.left = self._insert(node.left, data)
+        elif data > node.data:
+            node.right = self._insert(node.right, data)
+
+        return node
+
+    def display(self) -> list:
+        result = self._inorder_traversal(self.root)
+        # print(', '.join(str(node) for node in result))
+        return result
+
+    def _inorder_traversal(self, root, result=None):
+
+        if result is None:
+            result = []
+
+        if root is None:
+            return result
+
+        self._inorder_traversal(root.left, result)
+        result.append(root)
+        self._inorder_traversal(root.right, result)
+
+        return result
 
     def _height(self, root):
         if root is None:
@@ -48,67 +69,55 @@ class binary_search_tree:
 
         return root
 
-    def delete(self, root, key):
+    def delete(self, key):
+        self.root = self._delete(self.root, key)
 
-        if root is None:
+    def _delete(self, node, key):
+
+        if node is None:
             return None
 
-        if root.left is None and root.right is None:
-            root = None
+        # left node being deleted
+        if node.data == key and node.left is None and node.right is None:
             return None
 
-        if key < root.data:
-            root.left = self.delete(root.left, key)
-        elif key > root.data:
-            root.right = self.delete(root.right, key)
+        if key < node.data:
+            node.left = self._delete(node.left, key)
+        elif key > node.data:
+            node.right = self._delete(node.right, key)
         else:
-            if self._height(root.left) > self._height(root.right):
-                node = self._inorder_predecessor(root.left)
-                root.data = node.data
-                root.left = self.delete(root.left, node.data)
+            if self._height(node.left) > self._height(node.right):
+                newNode = self._inorder_predecessor(node.left)
+                node.data = newNode.data
+                node.left = self._delete(node.left, newNode.data)
             else:
-                node = self._inorder_successor(root.right)
-                root.data = node.data
-                root.right = self.delete(root.right, node.data)
+                newNode = self._inorder_successor(node.right)
+                node.data = newNode.data
+                node.right = self._delete(node.right, newNode.data)
 
-        return root
-
-    def inorder_traversal(self, root, result=None):
-
-        if result is None:
-            result = []
-
-        if root is None:
-            return result
-
-        self.inorder_traversal(root.left, result)
-        result.append(root)
-        self.inorder_traversal(root.right, result)
-
-        return result
+        return node
 
 
 BST = binary_search_tree()
-root = None
-root = BST.insert(root, 50, 'F')
-BST.insert(root, 10, 'B')
-BST.insert(root, 40, 'A')
-BST.insert(root, 20, 'C')
-BST.insert(root, 30, 'D')
+BST.insert(50)
+BST.insert(10)
+BST.insert(40)
+BST.insert(20)
+BST.insert(30)
 
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+print(', '.join(str(node) for node in BST.display()))
 
-root = BST.delete(root, 50)
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+BST.delete(50)
+print(', '.join(str(node) for node in BST.display()))
 
-root = BST.delete(root, 40)
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+BST.delete(40)
+print(', '.join(str(node) for node in BST.display()))
 
-root = BST.delete(root, 30)
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+BST.delete(30)
+print(', '.join(str(node) for node in BST.display()))
 
-root = BST.delete(root, 20)
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+BST.delete(20)
+print(', '.join(str(node) for node in BST.display()))
 
-root = BST.delete(root, 10)
-print(', '.join(str(node) for node in BST.inorder_traversal(root)))
+BST.delete(10)
+print(', '.join(str(node) for node in BST.display()))
